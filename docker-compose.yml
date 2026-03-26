@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # 1. The Message Broker (The Waiting Room)
+  redis:
+    image: redis:7-alpine
+    container_name: transcription_redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  # 2. The Traffic Cop (FastAPI)
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: transcription_api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app       # Syncs your code live so you don't have to rebuild to see changes
+      - ./data:/app/data     # Shared storage for audio files
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  # 3. The Heavy Lifter (Celery + WhisperX)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: transcription_worker
+    command: celery -A app.celery_app.celery_app worker --loglevel=info
+    volumes:
+      - ./app:/app/app
+      - ./data:/app/data     # Needs access to the exact same audio files
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN} # Required by Pyannote for diarization
+    depends_on:
+      - redis
+    # CRITICAL: This passes your physical GPU into the Docker container
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

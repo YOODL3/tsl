@@ -1,0 +1,25 @@
+# Use a highly optimized, lightweight Python image
+FROM python:3.10-slim
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# 1. Force the container to never ask for user input
+ENV DEBIAN_FRONTEND=noninteractive
+# 2. Pre-feed it a timezone so tzdata doesn't panic
+ENV TZ=Etc/UTC
+
+# 3. Run the installation normally
+RUN apt-get update && apt-get install -y ffmpeg git && rm -rf /var/lib/apt/lists/*
+
+# Copy the requirements file and install dependencies
+COPY requirements.txt .
+
+# We only install the API-specific dependencies here to keep the image small
+RUN pip install --no-cache-dir fastapi uvicorn celery redis python-multipart
+
+# Copy the actual application code
+COPY ./app /app/app
+
+# Start the FastAPI server
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

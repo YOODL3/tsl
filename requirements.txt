@@ -1,0 +1,7 @@
+fastapi==0.104.1
+uvicorn==0.24.0.post1
+celery==5.3.4
+redis==5.0.1
+python-multipart==0.0.6
+# Note: WhisperX is installed directly via Git in the worker Dockerfile 
+# due to how its specific PyTorch dependencies resolve.
