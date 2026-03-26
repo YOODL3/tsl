@@ -1,7 +1,7 @@
 import os
 import shutil
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from app.worker import process_audio
+from app.celery_app import celery_app
 from celery.result import AsyncResult
 
 router = APIRouter()
@@ -21,7 +21,7 @@ async def upload_audio(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Failed to save file: {e}")
 
     # 2. Tell Celery to start processing it in the background
-    task = process_audio.delay(file_location)
+    task = celery_app.send_task("app.worker.process_audio", args=[file_location])
 
     # 3. Return the ticket number immediately
     return {

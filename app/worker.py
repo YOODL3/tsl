@@ -1,6 +1,8 @@
 import os
+import torch
 import json
 import whisperx
+from pyannote.audio import Pipeline
 from app.celery_app import celery_app
 
 # 1. Load the models ONCE into GPU memory when the worker starts
@@ -12,7 +14,10 @@ print("Loading WhisperX model into VRAM...")
 model = whisperx.load_model("large-v3", device, compute_type=compute_type)
 
 print("Loading Diarization model...")
-diarize_model = whisperx.DiarizationPipeline(use_auth_token=hf_token, device=device)
+diarize_model = Pipeline.from_pretrained(
+    "pyannote/speaker-diarization-3.1", 
+    token=hf_token
+).to(torch.device(device))
 
 TRANSCRIPT_DIR = "/app/data/transcripts"
 os.makedirs(TRANSCRIPT_DIR, exist_ok=True)
@@ -37,7 +42,7 @@ def process_audio(self, file_path: str):
 
         # Step 4: Diarize (Figure out who is speaking)
         self.update_state(state='PROGRESS', meta={'step': 'Diarizing speakers'})
-        diarize_segments = diarize_model(audio)
+        diarize_segments = diarize_model(file_path)
         result = whisperx.assign_word_speakers(diarize_segments, result)
 
         # Step 5: Save the result
