@@ -87,18 +87,22 @@ The Output: Once successful, the fully formatted transcript will be saved locall
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-📂 Project Structure
-Plaintext
+## 📂 Project Structure
+
+```text
 transcription-speed-line/
 ├── app/
+│   ├── __init__.py          # Marks folder as a module
 │   ├── main.py              # FastAPI web server entry point
 │   ├── api.py               # Upload and status routing logic
 │   ├── celery_app.py        # Redis queue configuration
 │   └── worker.py            # WhisperX / Pyannote GPU processing logic
-├── data/                    
+├── data/
 │   ├── uploads/             # Temporary holding zone for raw audio
 │   └── transcripts/         # Final JSON/Text output zone
-├── .env                     # Contains HUGGINGFACE_TOKEN
+├── .env                     # Contains HUGGINGFACE_TOKEN (Ignored by Git)
+├── requirements.txt         # Python dependencies
 ├── Dockerfile.api           # Builds the lightweight web server
 ├── Dockerfile.worker        # Builds the heavy PyTorch GPU worker
-└── docker-compose.yml       # Orchestrates the containers and GPU passthrough
+└── docker-compose.yml       # Orchestrates containers and GPU passthrough
+```
