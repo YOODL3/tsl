@@ -49,15 +49,21 @@ For security reasons, the environment variables file is deliberately excluded fr
    HUGGINGFACE_TOKEN=hf_your_long_token_string_here
 
 ## 💻 Installation & Running
-Clone the repository:
+### Clone the repository:
 
+```text
 Bash
 git clone https://github.com/YOODL3/tsl
 cd transcription-speed-line
-Build and start the infrastructure:
+```
 
+### Build and start the infrastructure:
+
+```text
 Bash
 docker-compose up --build
+```
+
 (Note: The very first time you run this, the worker will take a few minutes to download the 3GB AI models into VRAM. Wait until you see celery@transcription_worker ready in the terminal).
 
 ## 🎧 How to Use (API)
