@@ -1,4 +1,4 @@
-🎙️ Radio Station Transcription Speed Line
+🎙️ Transcription Speed Line
 An internal, high-throughput, asynchronous transcription tool built specifically for processing large volumes of radio audio.
 
 It leverages WhisperX for highly accurate text transcription and forced alignment, alongside Pyannote for state-of-the-art speaker diarization (Speaker A / Speaker B). The system is built on an asynchronous task queue architecture to ensure the web server never hangs, even when processing hours of audio.
@@ -21,7 +21,11 @@ Message Broker: Redis acts as the "waiting room," keeping track of which files a
 
 GPU Worker: A heavy PyTorch container running Celery watches the queue. When a GPU is free, it grabs the file, runs it through the WhisperX pipeline, and saves a JSON transcript.
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 🛠️ Prerequisites & Setup
+
+
 1. Hardware & Docker Environment
 To run this tool at "speed line" pace, you must have an NVIDIA GPU.
 
@@ -54,19 +58,21 @@ For security reasons, the environment variables file is deliberately excluded fr
    ```env
    HUGGINGFACE_TOKEN=hf_your_long_token_string_here
 
-Kodavsnitt
-HUGGINGFACE_TOKEN=hf_your_long_token_string_here
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 💻 Installation & Running
 Clone the repository:
 
 Bash
-git clone <your-repo-url>
+git clone https://github.com/YOODL3/tsl
 cd transcription-speed-line
 Build and start the infrastructure:
 
 Bash
 docker-compose up --build
 (Note: The very first time you run this, the worker will take a few minutes to download the 3GB AI models into VRAM. Wait until you see celery@transcription_worker ready in the terminal).
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 🎧 How to Use (API)
 Once the containers are running, you can interact with the system via the auto-generated Swagger UI.
@@ -78,6 +84,8 @@ To Transcribe: Expand the POST /upload endpoint. Upload an audio file and execut
 To Check Status: Expand the GET /status/{task_id} endpoint. Paste your ID to check if the job is PENDING, PROGRESS, or SUCCESS.
 
 The Output: Once successful, the fully formatted transcript will be saved locally inside the data/transcripts/ directory.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 📂 Project Structure
 Plaintext
